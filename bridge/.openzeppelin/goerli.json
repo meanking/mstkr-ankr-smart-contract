@@ -1,0 +1,188 @@
+{
+  "manifestVersion": "3.1",
+  "impls": {
+    "1db9306d0f5e0df6099c3f4f4739fe0e60e0b0b63fdae1affe554e2345f9b893": {
+      "address": "0x1Ad374bA204172EBcF25Db8eF5632C8Cb8906B44",
+      "txHash": "0x7409eb086a351fd726e00a11a68cb9c2c1c746eb2e385fa16242a26f8548c8ec",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:25"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-upgradeable/proxy/Initializable.sol:30"
+          },
+          {
+            "contract": "ContextUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)50_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:31"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "_paused",
+            "type": "t_bool",
+            "src": "../@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:28"
+          },
+          {
+            "contract": "PausableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol:96"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "_status",
+            "type": "t_uint256",
+            "src": "../@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:37"
+          },
+          {
+            "contract": "ReentrancyGuardUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:67"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "_owner",
+            "type": "t_address",
+            "src": "../@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:20"
+          },
+          {
+            "contract": "OwnableUpgradeable",
+            "label": "__gap",
+            "type": "t_array(t_uint256)49_storage",
+            "src": "../@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74"
+          },
+          {
+            "contract": "CrossChainBridge",
+            "label": "_operator",
+            "type": "t_address",
+            "src": "CrossChainBridge.sol:122"
+          },
+          {
+            "contract": "CrossChainBridge",
+            "label": "_minted",
+            "type": "t_mapping(t_contract(IERC20Mintable)1235,t_int256)",
+            "src": "CrossChainBridge.sol:123"
+          },
+          {
+            "contract": "CrossChainBridge",
+            "label": "_locked",
+            "type": "t_mapping(t_contract(IERC20Mintable)1235,t_int256)",
+            "src": "CrossChainBridge.sol:124"
+          },
+          {
+            "contract": "CrossChainBridge",
+            "label": "_proofs",
+            "type": "t_mapping(t_bytes32,t_bool)",
+            "src": "CrossChainBridge.sol:125"
+          },
+          {
+            "contract": "CrossChainBridge",
+            "label": "_bridges",
+            "type": "t_array(t_struct(Bridge)90_storage)dyn_storage",
+            "src": "CrossChainBridge.sol:126"
+          },
+          {
+            "contract": "CrossChainBridge",
+            "label": "_bridgesIndex",
+            "type": "t_mapping(t_bytes32,t_uint256)",
+            "src": "CrossChainBridge.sol:127"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_contract(IERC20Mintable)1235,t_int256)": {
+            "label": "mapping(contract IERC20Mintable => int256)"
+          },
+          "t_contract(IERC20Mintable)1235": {
+            "label": "contract IERC20Mintable"
+          },
+          "t_int256": {
+            "label": "int256"
+          },
+          "t_mapping(t_bytes32,t_bool)": {
+            "label": "mapping(bytes32 => bool)"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_array(t_struct(Bridge)90_storage)dyn_storage": {
+            "label": "struct CrossChainBridge.Bridge[]"
+          },
+          "t_struct(Bridge)90_storage": {
+            "label": "struct CrossChainBridge.Bridge",
+            "members": [
+              {
+                "label": "bridgeStatus",
+                "type": "t_enum(BridgeStatus)74"
+              },
+              {
+                "label": "bridgeType",
+                "type": "t_enum(BridgeType)77"
+              },
+              {
+                "label": "fromToken",
+                "type": "t_contract(IERC20Mintable)1235"
+              },
+              {
+                "label": "toToken",
+                "type": "t_contract(IERC20Mintable)1235"
+              },
+              {
+                "label": "fromChain",
+                "type": "t_uint256"
+              },
+              {
+                "label": "toChain",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_enum(BridgeStatus)74": {
+            "label": "enum CrossChainBridge.BridgeStatus",
+            "members": [
+              "Disabled",
+              "Enabled"
+            ]
+          },
+          "t_enum(BridgeType)77": {
+            "label": "enum CrossChainBridge.BridgeType",
+            "members": [
+              "Mintable",
+              "Lockable"
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          }
+        }
+      }
+    }
+  },
+  "admin": {
+    "address": "0x7827932B45a817a9902FD8f9e330E17d8e7705A3",
+    "txHash": "0x1344f0c8da363cf67b4201373ffd5a0263e9b69ae9479c57aaefc141cdd85b58"
+  }
+}

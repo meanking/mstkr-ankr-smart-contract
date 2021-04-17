@@ -1,0 +1,251 @@
+version: 2
+
+tests: &tests
+  docker:
+    - image: tarampampam/node:13-alpine
+  steps:
+    - checkout
+    - setup_remote_docker
+    - attach_workspace:
+        at: '.'
+
+#tests_legacy: &tests_legacy
+    - run:
+        name: "Installing dependencies for legacy contracts"
+        command: yarn --cwd legacy install
+    - run:
+        name: "Compiling contracts for legacy contracts"
+        command: yarn --cwd legacy compile
+    - run:
+        name: "Running tests for legacy contracts"
+        command: yarn --cwd legacy test
+    - persist_to_workspace:
+        root: './legacy'
+        paths:
+          - '.'
+
+#tests_avalanche: &tests_avalanche
+    - run:
+        name: "Installing dependencies for avalanche contracts"
+        command: yarn --cwd avalanche install
+    - run:
+        name: "Compiling contracts for avalanche contracts"
+        command: yarn --cwd avalanche compile
+    - run:
+        name: "Running tests for avalanche contracts"
+        command: yarn --cwd avalanche test
+    - persist_to_workspace:
+        root: './avalanche'
+        paths:
+          - '.'
+
+#tests_bridge: &tests_bridge
+    - run:
+        name: "Installing dependencies for bridge contracts"
+        command: yarn --cwd bridge install
+    - run:
+        name: "Compiling contracts for bridge contracts"
+        command: yarn --cwd bridge compile
+    - run:
+        name: "Running tests for bridge contracts"
+        command: yarn --cwd bridge test
+    - persist_to_workspace:
+        root: './bridge'
+        paths:
+          - '.'
+
+#tests_bsc: &tests_bsc
+    - run:
+        name: "Installing dependencies for bsc contracts"
+        command: yarn --cwd bsc install
+    - run:
+        name: "Compiling contracts for bsc contracts"
+        command: yarn --cwd bsc compile
+    - run:
+        name: "Running tests for bsc contracts"
+        command: yarn --cwd bsc test
+    - persist_to_workspace:
+        root: './bsc'
+        paths:
+          - '.'
+
+migrate-legacy: &migrate-legacy
+  docker:
+    - image: bigbadalien/awscli-node-kops-kubectl:0.3
+  steps:
+    - checkout
+    - attach_workspace:
+        at: '.'
+    - run:
+        name: "Fetch old build"
+        command: |
+          cd legacy
+          echo "Fetching assets from $DOMAIN"
+          aws s3 cp s3://$ASSETS_DOMAIN/contracts/$CIRCLE_BRANCH/ . \
+          --acl bucket-owner-full-control --recursive --cache-control "public,max-age=600,s-maxage=3600" \
+          --quiet
+          ls
+    - run:
+        name: "Migrate"
+        command: |
+          cd legacy
+          yarn install
+          yarn compile
+          npx truffle migrate --network goerli
+          yarn build:addresses
+    - run:
+        name: "Verify Contracts"
+        command: |
+          cd legacy
+          yarn verify:goerli
+    - run:
+        name: "Upload"
+        command: |
+          cd legacy
+          mkdir dist
+          mv build dist/.
+          mv .openzeppelin dist/.
+          mv addresses.json dist/.
+          aws s3 cp dist/ s3://$ASSETS_DOMAIN/contracts/$CIRCLE_BRANCH/ \
+          --acl bucket-owner-full-control --recursive --cache-control "public,max-age=600,s-maxage=3600"
+          echo "Invalidating CDN network"
+          INVALIDATION_ID=`aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*' | jq -r '.Invalidation.Id'`
+          echo "Invalidation ID is $INVALIDATION_ID"
+          echo "CDN Invalidation request is sent."
+    - persist_to_workspace:
+        root: './legacy'
+        paths:
+          - '.'
+
+migrate-avalanche: &migrate-avalanche
+  docker:
+    - image: bigbadalien/awscli-node-kops-kubectl:0.3
+  steps:
+    - checkout
+    - attach_workspace:
+        at: '.'
+    - run:
+        name: "Fetch old build"
+        command: |
+          cd avalanche
+          echo "Fetching assets from $DOMAIN"
+          aws s3 cp s3://$ASSETS_DOMAIN/contracts/avalanche/$CIRCLE_BRANCH/ . \
+          --acl bucket-owner-full-control --recursive --cache-control "public,max-age=600,s-maxage=3600" \
+          --quiet
+          ls
+    - run:
+        name: "Migrate"
+        command: |
+          cd avalanche
+          yarn install
+          yarn compile
+          npx truffle migrate --network fujitestnetcchain
+          yarn build:addresses
+    - run:
+        name: "Verify Contracts"
+        command: |
+          cd avalanche
+          yarn verify:goerli
+    - run:
+        name: "Upload"
+        command: |
+          cd avalanche
+          mkdir dist
+          mv build dist/.
+          mv .openzeppelin dist/.
+          mv addresses.json dist/.
+          aws s3 cp dist/ s3://$ASSETS_DOMAIN/contracts/avalanche/$CIRCLE_BRANCH/ \
+          --acl bucket-owner-full-control --recursive --cache-control "public,max-age=600,s-maxage=3600"
+          echo "Invalidating CDN network"
+          INVALIDATION_ID=`aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*' | jq -r '.Invalidation.Id'`
+          echo "Invalidation ID is $INVALIDATION_ID"
+          echo "CDN Invalidation request is sent."
+    - persist_to_workspace:
+        root: './legacy'
+        paths:
+          - '.'
+
+jobs:
+  test:
+    <<: *tests
+  migrate-legacy-develop:
+    <<: *migrate-legacy
+  migrate-legacy-goerli:
+    <<: *migrate-legacy
+  migrate-avalanche-develop:
+    <<: *migrate-avalanche
+  migrate-avalanche-goerli:
+    <<: *migrate-avalanche
+workflows:
+  version: 2
+  stkr_smartcontracts:
+    jobs:
+      - test
+      - migrate-legacy-develop:
+          context:
+            - cicd
+            - STRK_Smart_Contract_GOERLI
+            - stkr_build_develop
+          requires:
+            - approve-legacy-dev
+          filters:
+            branches:
+              only: develop
+      - migrate-legacy-goerli:
+          context:
+            - cicd
+            - STRK_Smart_Contract_GOERLI
+            - stkr_build_goerli
+          requires:
+            - approve-legacy-goerli
+          filters:
+            branches:
+              only: goerli
+      - migrate-avalanche-develop:
+          context:
+            - cicd
+            - STRK_Smart_Contract_GOERLI
+            - stkr_build_develop
+          requires:
+            - approve-avalanche-dev
+          filters:
+            branches:
+              only: develop
+      - migrate-avalanche-goerli:
+          context:
+            - cicd
+            - STRK_Smart_Contract_GOERLI
+            - stkr_build_goerli
+          requires:
+            - approve-avalanche-goerli
+          filters:
+            branches:
+              only: goerli
+      - approve-legacy-dev:
+          requires:
+            - test
+          filters:
+            branches:
+              only: develop
+          type: approval
+      - approve-avalanche-dev:
+          requires:
+            - test
+          filters:
+            branches:
+              only: develop
+          type: approval
+      - approve-legacy-goerli:
+          requires:
+            - test
+          filters:
+            branches:
+              only: goerli
+          type: approval
+      - approve-avalanche-goerli:
+          requires:
+            - test
+          filters:
+            branches:
+              only: goerli
+          type: approval

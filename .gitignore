@@ -1,0 +1,15 @@
+client/
+.idea/
+artifacts/
+cache/
+node_modules/
+build/
+build/contracts/*.abi
+addresses.json
+
+.openzeppelin/**
+.DS_Store
+
+.openzeppelin/unknown-*.json
+
+.env
